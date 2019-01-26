@@ -195,8 +195,9 @@ def getUserID(email):
     try:
         user = session.query(User).filter_by(email=email).one()
         return user.id
-    except IndexError:
+    except Exception:
         return None
+        raise
 
 
 # |---------------------------------------------------|
