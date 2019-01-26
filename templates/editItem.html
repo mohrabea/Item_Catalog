@@ -1,0 +1,40 @@
+{% extends "main.html" %}
+{% block content %}
+
+<h1> Edit Item </h1>
+<h1> {{item.title}} </h1>
+
+
+<form action="{{ url_for('item_edit',cat_name= cat_name, item_title=item_title)}}" method = 'POST'>
+
+<dl>
+	<dt>Title:</dt>
+		<dd><input type ='text' size='30' maxlength='50' name='title' value="{{item.title}}"  ></dd>
+    <dt>Description:</dt>
+		<dd><input type ='text' size='50' maxlength='250' name='description'  value="{{item.description}}" ></dd>
+
+	<dt>Category</dt>
+    <dd> <select name='cat_id'  >
+
+        {% for c in categories %}
+            {% if c.name == cat_name %}
+               <option value='{{c.id}}' selected > {{c.name}} </option>
+            {% else %}
+               <option value='{{c.id}}'> {{c.name}} </option>
+            {% endif %}
+
+        {% endfor %}
+        </select>
+    </dd>
+
+
+
+
+</dl>
+
+<input type='submit' value='Edit'>
+
+<a href = '{{url_for('category_items', cat_name=cat_name)}}'> Cancel </a>
+</form>
+
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "main.html" %}
+{% block content %}
+
+<h1> Are you sure you want to delete < {{cat_name}} > ? </h1>
+<h2> Warning : All items associated with it will be deleted.. </h2>
+
+<form action="{{ url_for('category_delete',cat_name= cat_name)}}" method = 'POST'>
+<h2>&nbsp;</h2>
+<input type='submit', value = 'Delete'>
+<a href = '{{url_for('home')}}' > Cancel </a>
+
+</form>
+
+{% endblock %}
+

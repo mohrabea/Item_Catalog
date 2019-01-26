@@ -1,0 +1,52 @@
+{% extends "main.html" %}
+{% block content %}
+
+	<a href = '{{url_for('home') }}'> <- HOME PAGE</a>
+
+	<div class =  'flash' >
+		{% with messages = get_flashed_messages() %}
+			{% if messages %}
+			<ul>
+				{% for message in messages %}
+					<li> <strong> {{ message }} </strong> </li>
+				{% endfor %}
+			</ul>
+		{% endif %}
+		{% endwith %}
+	</div>
+
+	<div class="row">
+		<div class="col-left" style="background-color:#aaa;">
+			<h1> Categories </h1>
+			{% for c in categories %}
+				<h2>
+					<a href='{{url_for('category_items', cat_name = c.name)}}' style='text-decoration:none' >{{c.name}}<a/>
+				</h2>
+			{% endfor %}
+
+			{% if categories|length < items|length %}
+					{% for c in range(items|length - categories|length) %}
+						<h2>&nbsp;</h2>
+					{% endfor %}
+			{% endif %}
+		</div>
+
+		<div class="col-right" style="background-color:#bbb;">
+			<h1> {{cat_name}} Items ({{items|length}}) </h1>
+			{% for i in items %}
+				<h2>
+					<a href='{{url_for('item_information', cat_name=cat_name, item_title=i.title )}}' >{{i.title}} <a/>
+				</h2>
+			{% endfor %}
+
+			{% if categories|length > items|length %}
+					{% for c in range(categories|length - items|length) %}
+						<h2>&nbsp;</h2>
+					{% endfor %}
+				{% endif %}
+
+		</div>
+
+	</div>
+
+{% endblock%}

@@ -1,0 +1,77 @@
+{% extends "main.html" %}
+{% block content %}
+	<div class =  'flash' >
+		{% with messages = get_flashed_messages() %}
+			{% if messages %}
+			<ul>
+				{% for message in messages %}
+					<li> <strong> {{ message }} </strong> </li>
+				{% endfor %}
+			</ul>
+		{% endif %}
+		{% endwith %}
+	</div>
+
+	<div class="row">
+		<div class="col-left" style="background-color:#aaa;">
+
+			{% if isLoggedIn %}
+				<a href = '{{url_for('category_new') }}'>Add New Category</a>
+			{% endif %}
+
+			<h1> Categories </h1>
+				{% for c in categories %}
+					<div style="width:100%;">
+						<div style="float:left; width:70%;">
+							<h2>
+								<a href='{{url_for('category_items', cat_name = c.name)}}' >{{c.name}} <a/>
+							</h2>
+						</div>
+
+						<div style="float:right; width:30%; ">
+								{% if isLoggedIn %}
+									{% if user_create == c.user_id %}
+											<h2>
+												<a href='{{url_for('category_edit', cat_name = c.name)}}' >Edit |</a>
+												<a href='{{url_for('category_delete', cat_name = c.name )}}'> Delete</a>
+											</h2>
+									{% else %}
+										<h2>&nbsp;</h2>
+									{% endif %}
+								{% endif %}
+						</div>
+
+					</div>
+
+				{% endfor %}
+
+				{% if categories|length < items|length %}
+					{% for c in range(items|length - categories|length) %}
+						<h2>&nbsp;</h2>
+					{% endfor %}
+				{% endif %}
+		</div>
+
+
+		<div class="col-right" style="background-color:#bbb;">
+			{% if isLoggedIn %}
+				<a href = '{{url_for('item_new') }}'>Add New Items</a>
+			{% endif %}
+			<h1> Latest Items </h1>
+			{% for i in items %}
+
+				<h2>
+					<a href='{{url_for('category_items', cat_name = i.cat_name)}}' >{{i.title}} ({{ i.cat_name}}) <a/>
+				</h2>
+			{% endfor %}
+
+			{% if categories|length > items|length %}
+				{% for c in range(categories|length - items|length) %}
+					<h2>&nbsp;</h2>
+				{% endfor %}
+			{% endif %}
+		</div>
+
+	</div>
+
+{% endblock %}}

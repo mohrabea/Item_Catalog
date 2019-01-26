@@ -1,0 +1,16 @@
+
+<div style="width:100%; background-color:#2F4F4F ;">
+  <div align="left" style="float:left; width:50%; background-color:#2F4F4F ; padding: 10px;">
+        <a  href="{{ url_for('home') }}"> <h2> Catalog App </h2></a>
+  </div>
+
+  <div align="right" style="float:right; width:50%; background-color:#2F4F4F ;  padding: 10px;">
+        <h2>
+          {%if 'username' not in session %}
+            <a href="{{url_for('showLogin')}}">Login</a>
+          {% else %}
+            <a href="{{url_for('gdisconnect')}}">Logout</a>
+          {% endif %}
+        </h2>
+  </div>
+</div>
