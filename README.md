@@ -55,8 +55,8 @@ These instructions will get you a copy of the project up and running on your loc
 
 The following are open to the public:
 * **Catalog JSON:** `http://localhost:8000/catalog.json` -Displays the whole catalog. Categories and all items.
-* **Categories JSON:** `http://localhost:8000/catalog.json/categories.json` -Displays items for a specific category.
-* **Category Items JSON:** `http://localhost:8000/catalog.json/categories.jso/items.json` Displays a specific category item.
+* **Categories JSON:** `http://localhost:8000/categories.json` -Displays items for a specific category.
+* **Category Items JSON:** `http://localhost:8000/items.json` Displays a specific category item.
 
 
 ### Authors
