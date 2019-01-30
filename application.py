@@ -34,6 +34,10 @@ session = DBSession()
 # Create anti-forgery state token
 @app.route('/login')
 def showLogin():
+    """ Create anti-forgery state token
+    returns :
+        state of current session
+    """
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in range(32))
     login_session['state'] = state
@@ -43,6 +47,7 @@ def showLogin():
 
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
+
     # Validate state token
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
@@ -135,6 +140,10 @@ def gconnect():
 # DISCONNECT - Revoke a current user's token and reset their login_session
 @app.route('/gdisconnect')
 def gdisconnect():
+    """ DISCONNECT - Revoke a current user's token and reset their login_session
+    returns :
+        Response
+    """
     access_token = login_session.get('access_token')
     if access_token is None:
         print('Access Token is None')
@@ -178,6 +187,12 @@ def gdisconnect():
 
 # User Helper Functions
 def createUser(login_session):
+    """ Create new user in the database.
+    Args:
+        login_session: session object with user data.
+    returns :
+        user.id :generated distinct integer value.
+    """
     newUser = User(name=login_session['username'], email=login_session[
         'email'], picture=login_session['picture'])
     session.add(newUser)
@@ -187,11 +202,23 @@ def createUser(login_session):
 
 
 def getUserInfo(user_id):
+    """ To get user information from database.
+    Args:
+        user_id: user id.
+    returns :
+        user : resultset for user information by id.
+    """
     user = session.query(User).filter_by(id=user_id).one()
     return user
 
 
 def getUserID(email):
+    """ To get user information from database.
+    Args:
+        email : user email.
+    returns :
+        user : resultset for user information by email.
+    """
     try:
         user = session.query(User).filter_by(email=email).one()
         return user.id
@@ -210,6 +237,10 @@ def getUserID(email):
 # JSON ENDPOINT Hear to display all catalog
 @app.route('/catalog.json')
 def catalog_json():
+    """ JSON ENDPOINT Hear to display all catalog.
+    returns :
+        jasonify(Category:# object serialize) : call this function do display all catalan on web browser.
+    """
     categories = []
     for c in session.query(Category).all():
         cat_output = {
@@ -226,6 +257,10 @@ def catalog_json():
 # JSON ENDPOINT Here to display all categories
 @app.route('/categories.json')
 def categories_json():
+    """ JSON ENDPOINT Here to display all categories.
+    returns :
+        jasonify(Category:# object serialize) : call this function do display all categories on web browser.
+    """
     categories = session.query(Category).all()
     return jsonify(Category=[i.serialized for i in categories])
 
@@ -233,13 +268,22 @@ def categories_json():
 # JSON ENDPOINT Here to display all items
 @app.route('/items.json')
 def items_json():
+    """ JSON ENDPOINT Here to display all items.
+    returns :
+        jasonify(Item:# object serialize) : call this function do display all items on web browser.
+    """
     items = session.query(Item).order_by(Item.cat_id).all()
     return jsonify(Item=[i.serialized for i in items])
 
 
-# JSON ENDPOINT Here to display all items
+# JSON ENDPOINT Here to display all users
 @app.route('/users.json')
 def users_json():
+    """ JSON ENDPOINT Here to display all users.
+    returns :
+        jasonify(User:# object serialize) : call this function do display
+         all items on web browser.
+    """
     users = session.query(User).all()
     return jsonify(User=[i.serialized for i in users])
 
@@ -254,6 +298,10 @@ def users_json():
 @app.route('/')
 @app.route('/catalog')
 def home():
+    """ app.route decorator hear to list all categories.
+    returns :
+        Page to display all categorise with latest items
+    """
     if 'username' not in login_session:
         isLoggedIn = False
         user_create = 0
@@ -284,6 +332,13 @@ def home():
 # category.
 @app.route('/catalog/<string:cat_name>/items/')
 def category_items(cat_name):
+    """ Selecting a specific category shows you all the items available
+        for that category.
+    Args:
+        cat_name: category name.
+    returns :
+            Page to display all categorise with items.
+    """
     categories = session.query(Category).all()
     category = session.query(Category).filter_by(name=cat_name).one()
     items = session.query(Item).filter_by(cat_id=category.id). \
@@ -312,10 +367,16 @@ def category_items(cat_name):
 # app.route here To create new category
 @app.route('/catalog/new', methods=['POST', 'GET'])
 def category_new():
+    """ app.route here To create new category
+    returns :
+        get: page to create new category.
+        post: save new category to database and redirect to home page.
+    """
     if 'username' not in login_session:
         return redirect('/login')
 
     if request.method == 'POST':
+
         newItem = Category(name=request.form['name'],
                            user_id=login_session['user_id'])
         session.add(newItem)
@@ -329,10 +390,24 @@ def category_new():
 # app.route here To modify category.
 @app.route('/catalog/<string:cat_name>/edit/', methods=['POST', 'GET'])
 def category_edit(cat_name):
+    """ app.route here To modify category.
+    Args:
+        cat_name: category name.
+    returns :
+        get: page to edit category.
+        post: save modify category to database and redirect to home page.
+    """
+
     if 'username' not in login_session:
         return redirect('/login')
+    categoryToEdit = session.query(Category).filter_by(name=cat_name).one()
+    if login_session['user_id'] != categoryToEdit.user_id:
+        return "<script> function myFunction() {alert('" \
+                    "You are not authorized to edit this category..');" \
+                    " window.location.href = '/catalog';} " \
+                    "</script><body onload='myFunction()'>"
+
     if request.method == 'POST':
-        categoryToEdit = session.query(Category).filter_by(name=cat_name).one()
         categoryToEdit.name = request.form['name']
         session.add(categoryToEdit)
         session.commit()
@@ -346,19 +421,26 @@ def category_edit(cat_name):
 # app route here To delete category.
 @app.route('/catalog/<string:cat_name>/delete/', methods=['POST', 'GET'])
 def category_delete(cat_name):
+    """ To delete category.
+        Args:
+            cat_name: category name.
+        returns :
+            get: page to delete category.
+            post: delete category from database and redirect to home page.
+        """
     if 'username' not in login_session:
         return redirect('/login')
+    categoryToDelete = session.query(Category).filter_by(name=cat_name).one()
+    if login_session['user_id'] != categoryToDelete.user_id:
+        return "<script> function myFunction() {alert('" \
+                    "You are not authorized to delete this category');" \
+                    " window.location.href = '/catalog';} " \
+                    "</script><body onload='myFunction()'>"
+
     if request.method == 'POST':
-        categoryToDelete = session.query(Category).filter_by(name=cat_name). \
-            one()
-        itemsToDelete = session.query(Item).filter_by(
-            cat_id=categoryToDelete.id).all()
+
         session.delete(categoryToDelete)
         session.commit()
-        if itemsToDelete:
-            for i in itemsToDelete:
-                session.delete(i)
-            session.commit()
         flash('%s Successfully Deleted' % categoryToDelete.name)
         return redirect(url_for('home'))
     else:
@@ -371,6 +453,12 @@ def category_delete(cat_name):
 # route here to add new item
 @app.route('/catalog/newItem', methods=['POST', 'GET'])
 def item_new():
+    """ To create new item.
+    returns :
+        get: page to create new item.
+        post: save new item to database and redirect to home page.
+    """
+
     if 'username' not in login_session:
         return redirect('/login')
 
@@ -400,6 +488,15 @@ def item_new():
 # route to  shows specific item information.
 @app.route('/catalog/<string:cat_name>/<string:item_title>/')
 def item_information(cat_name, item_title):
+    """ app.route here To modify category.
+    Args:
+        cat_name: category name.
+        item_title : item title.
+    returns :
+        get: page to edit category.
+        post: save modify itme to database and redirect to home page.
+    """
+
     category = session.query(Category).filter_by(name=cat_name).one()
     item = session.query(Item).filter(Item.cat_id == category.id,
                                       Item.title == item_title).one()
@@ -418,12 +515,27 @@ def item_information(cat_name, item_title):
 @app.route('/catalog/<string:cat_name>/<string:item_title>/edit/',
            methods=['POST', 'GET'])
 def item_edit(cat_name, item_title):
+    """ app.route here To modify category.
+    Args:
+        cat_name: category name.
+        item_title : item title.
+    returns :
+        get: page to edit category.
+        post: save modify itme to database and redirect to category
+            items page.
+    """
+
     if 'username' not in login_session:
         return redirect('/login')
+    category = session.query(Category).filter_by(name=cat_name).one()
+    item = session.query(Item).filter(Item.cat_id == category.id,
+                                      Item.title == item_title).one()
+    if login_session['user_id'] != item.user_id:
+        return "<script> function myFunction() {alert('" \
+                    "You are not authorized to edit this item');" \
+                    " window.location.href = '/catalog';} " \
+                    "</script><body onload='myFunction()'>"
     if request.method == 'POST':
-        category = session.query(Category).filter_by(name=cat_name).one()
-        item = session.query(Item).filter(Item.cat_id == category.id,
-                                          Item.title == item_title).one()
         item.title = request.form['title']
         item.description = request.form['description']
         item.cat_id = request.form['cat_id']
@@ -435,9 +547,6 @@ def item_edit(cat_name, item_title):
         # This query collects the only category created by the authority user
         categories = session.query(Category).filter_by(
             user_id=login_session['user_id']).order_by(Category.name).all()
-        category = session.query(Category).filter_by(name=cat_name).one()
-        item = session.query(Item).filter(Item.cat_id == category.id,
-                                          Item.title == item_title).one()
         return render_template('editItem.html', categories=categories,
                                item=item, cat_name=cat_name,
                                item_title=item_title)
@@ -447,12 +556,28 @@ def item_edit(cat_name, item_title):
 @app.route('/catalog/<string:cat_name>/<string:item_title>/delete/',
            methods=['POST', 'GET'])
 def item_delete(cat_name, item_title):
+    """ To delete itme.
+    Args:
+        cat_name: category name.
+        item_title : item title.
+    returns :
+        get: page to delete item.
+        post: delete item from database and redirect to category items page.
+    """
+
     if 'username' not in login_session:
         return redirect('/login')
+    category = session.query(Category).filter_by(name=cat_name).one()
+    item = session.query(Item).filter(Item.cat_id == category.id,
+                                      Item.title == item_title).one()
+    if login_session['user_id'] != item.user_id:
+        return "<script> function myFunction() {alert('" \
+                    "You are not authorized to delete this item');" \
+                    " window.location.href = '/catalog';} " \
+                    "</script><body onload='myFunction()'>"
+
     if request.method == 'POST':
-        category = session.query(Category).filter_by(name=cat_name).one()
-        item = session.query(Item).filter(Item.cat_id == category.id,
-                                          Item.title == item_title).one()
+
         session.delete(item)
         session.commit()
         flash("<Item Successfully Deleted>")
@@ -460,8 +585,6 @@ def item_delete(cat_name, item_title):
     elif request.method == 'GET':
         return render_template('deleteItem.html', cat_name=cat_name,
                                item_title=item_title)
-
-
 # |---------------------------------------------------|
 
 

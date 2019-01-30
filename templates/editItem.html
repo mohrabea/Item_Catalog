@@ -9,12 +9,12 @@
 
 <dl>
 	<dt>Title:</dt>
-		<dd><input type ='text' size='30' maxlength='50' name='title' value="{{item.title}}"  ></dd>
+		<dd><input type ='text' size='30' maxlength='50' name='title' value="{{item.title}}" required ></dd>
     <dt>Description:</dt>
-		<dd><input type ='text' size='50' maxlength='250' name='description'  value="{{item.description}}" ></dd>
+		<dd><input type ='text' size='50' maxlength='250' name='description'  value="{{item.description}}" required ></dd>
 
 	<dt>Category</dt>
-    <dd> <select name='cat_id'  >
+    <dd> <select name='cat_id' >
 
         {% for c in categories %}
             {% if c.name == cat_name %}

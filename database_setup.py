@@ -10,6 +10,9 @@ Base = declarative_base()
 
 
 class User(Base):
+    """
+        Registered user information is stored in database.
+    """
     __tablename__ = 'user'
 
     id = Column(Integer, primary_key=True)
@@ -19,6 +22,9 @@ class User(Base):
 
     @property
     def serialized(self):
+        """ this serialize function to be able to send JSON objects
+             in a serializable format
+        """
         return {
             'id': self.id,
             'name': self.name,
@@ -28,15 +34,23 @@ class User(Base):
 
 
 class Category(Base):
+    """
+            Registered category information is stored in database.
+    """
+
     __tablename__ = 'category'
 
     id = Column(Integer, primary_key=True)
     name = Column(String(250), nullable=False)
     user_id = Column(Integer, ForeignKey('user.id'))
+    item = relationship('Item', cascade='all, delete-orphan')
     user = relationship(User)
 
     @property
     def serialized(self):
+        """ this serialize function to be able to send JSON objects
+            in a serializable format
+        """
 
         return {
             'id': self.id,
@@ -46,6 +60,10 @@ class Category(Base):
 
 
 class Item(Base):
+    """
+        Registered item information is stored in database.
+    """
+
     __tablename__ = 'item'
 
     id = Column(Integer, primary_key=True)
@@ -56,10 +74,11 @@ class Item(Base):
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
 
-    # We added this serialize function to be able to send JSON objects in a
-# serializable format
     @property
     def serialized(self):
+        """ this serialize function to be able to send JSON objects
+         in a serializable format
+        """
 
         return {
 

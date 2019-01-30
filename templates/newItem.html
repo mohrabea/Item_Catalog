@@ -1,16 +1,12 @@
 {% extends "main.html" %}
 {% block content %}
-
 <h1> Add New Item </h1>
-
 <form action="{{ url_for('item_new')}}" method = 'post'>
-
 <dl>
 	<dt>Title:</dt>
-		<dd><input type ='text' size='30' maxlength='50' name='title' ></dd>
+		<dd><input type ='text' size='30' maxlength='50' name='title' required></dd>
     <dt>Description:</dt>
-		<dd><input type ='text' size='50' maxlength='250' name='description' ></dd>
-
+		<dd><input type ='text' size='50' maxlength='250' name='description' required></dd>
 	<dt>Category</dt>
     <dd> <select name='cat_id' >
         {% for c in categories %}
@@ -18,10 +14,6 @@
         {% endfor %}
         </select>
     </dd>
-
-
-
-
 </dl>
 
 
